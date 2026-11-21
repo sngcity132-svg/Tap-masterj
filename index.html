@@ -131,7 +131,13 @@ let currentUser=null;
 const byId=id=>document.getElementById(id);
 function authMessage(msg){const el=byId('authMessage');if(el)el.textContent=msg;}
 function updateAccount(user){currentUser=user;const status=byId('accountStatus'),logout=byId('logoutBtn');if(user){status.textContent='Connecté : '+user.email+' — tes scores pourront être sauvegardés en ligne.';logout.style.display='inline-block';}else{status.textContent='Connecte-toi pour sauvegarder tes scores en ligne.';logout.style.display='none';}}
-async function signUp(){const email=byId('authEmail').value.trim(),password=byId('authPassword').value;if(!email||password.length<6){authMessage('Entre un email valide et un mot de passe de 6 caractères minimum.');return;}authMessage('Création du compte…');const {data,error}=await supabase.auth.signUp({email,password});if(error){authMessage(error.message);return;}if(data.session){updateAccount(data.user);authMessage('Compte créé et connecté !');}else{authMessage('Compte créé. Vérifie ta boîte email pour confirmer ton inscription, puis connecte-toi.');}}
+async function signUp(){const email=byId('authEmail').value.trim(),password=byId('authPassword').value;if(!email||password.length<6){authMessage('Entre un email valide et un mot de passe de 6 caractères minimum.');return;}authMessage('Création du compte…');const {data,error}=await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: 'https://sngcity132-svg.github.io/Tap-masterj/'
+  }
+});if(error){authMessage(error.message);return;}if(data.session){updateAccount(data.user);authMessage('Compte créé et connecté !');}else{authMessage('Compte créé. Vérifie ta boîte email pour confirmer ton inscription, puis connecte-toi.');}}
 async function signIn(){const email=byId('authEmail').value.trim(),password=byId('authPassword').value;if(!email||!password){authMessage('Renseigne ton email et ton mot de passe.');return;}authMessage('Connexion…');const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error){authMessage(error.message);return;}updateAccount(data.user);authMessage('Connexion réussie !');setTimeout(()=>{byId('authModal').style.display='none';},700);}
 async function signOut(){const {error}=await supabase.auth.signOut();if(error){alert(error.message);return;}updateAccount(null);}
 async function saveScore({mode,score}){if(!currentUser){return;}const {error}=await supabase.from('scores').insert({user_id:currentUser.id,mode,score});if(error){console.error('TAP MASTER score error:',error.message);if(window.toast)window.toast('Score non synchronisé : '+error.message);}}
