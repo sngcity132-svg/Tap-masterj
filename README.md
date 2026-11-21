@@ -1,27 +1,21 @@
-# TAP MASTER — MVP 1.0
+# TAP MASTER GLOBAL — Version 2.0
 
-## Contenu
-- `index.html` : jeu complet (3 mini-défis)
-- `manifest.webmanifest` : installation PWA
-- `sw.js` : cache hors connexion
-- `icons/icon.svg` : icône
+## Installation / mise à jour
+Remplace les fichiers du dépôt GitHub par tous les fichiers de cette archive, en conservant la structure des dossiers. Le fichier `index.html` contient maintenant la connexion Supabase.
 
-## Tester depuis Android
-1. Téléchargez et décompressez le ZIP.
-2. Importez le contenu du dossier `tap-master` dans un dépôt GitHub.
-3. Dans GitHub : Settings → Pages → Deploy from a branch → `main` → `/ (root)` → Save.
-4. Attendez la publication, puis ouvrez l'adresse GitHub Pages dans Chrome Android.
-5. Menu Chrome → « Installer l'application » ou « Ajouter à l'écran d'accueil ».
+## Supabase
+Le jeu utilise le Project URL et la clé publishable configurés dans `index.html`. Cette clé est publique et peut être présente dans le code client. Ne jamais y placer de clé `secret` ou `service_role`.
 
-Alternative : déployer le dossier sur Netlify en utilisant l'option de déploiement manuel.
+Le schéma SQL `profiles` et `scores` doit avoir été exécuté dans Supabase avant utilisation. Active le fournisseur Email dans Authentication → Sign In / Providers.
 
-## Monétisation — étape suivante
-Les blocs « ESPACE PUBLICITAIRE » sont des emplacements visuels uniquement : aucune publicité ne s'affiche encore et aucun revenu n'est généré à ce stade.
-Pour le web, étudier Google AdSense selon l'éligibilité du site. Pour une application Android publiée sur Google Play, intégrer Google AdMob via une enveloppe Android adaptée et respecter les règles de consentement et de publicité.
-Ne jamais cliquer sur ses propres annonces. Utiliser des annonces de test pendant le développement.
+## Fonctionnalités ajoutées
+- Inscription et connexion par email/mot de passe.
+- Profil créé automatiquement par le trigger SQL.
+- Enregistrement des scores des joueurs connectés.
+- Classement par mode (20 résultats).
 
-## Limites connues du MVP
-- Les scores et records sont stockés localement sur l'appareil.
-- Le classement n'est pas encore mondial : il nécessitera un serveur et une base de données.
-- Le jeu est une PWA, pas encore un APK natif.
-- Le mode Memory Flash est une manche courte de mémorisation.
+## Limites et sécurité
+- Les scores sont soumis depuis le navigateur : ce MVP n'empêche pas la triche. Une validation serveur / Edge Function et des limites anti-abus sont nécessaires avant lancement public.
+- Le classement est global mais affiche les meilleurs résultats soumis, pas un classement certifié.
+- La confirmation email peut être requise selon les paramètres Auth du projet. Configure les URL autorisées dans Authentication → URL Configuration : ajoute l'URL GitHub Pages du jeu.
+- Les publicités et paiements ne sont pas encore intégrés.
