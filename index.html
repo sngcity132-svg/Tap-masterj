@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#080914">
+<meta name="description" content="TAP MASTER — teste tes réflexes, ta précision et ta mémoire.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<title>TAP MASTER — Arcade Challenge</title>
+<style>
+:root{--bg:#080914;--panel:#111329;--cyan:#31f5ff;--pink:#ff3bd4;--purple:#8b5cff;--muted:#9da4c7;--white:#f7f8ff}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -10%,#25205a 0,#0b0d20 42%,var(--bg) 75%);color:var(--white);font-family:Inter,system-ui,Arial,sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer} .wrap{max-width:520px;margin:auto;padding:20px 18px 36px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}.brand{font-weight:1000;letter-spacing:2px;font-size:18px}.brand span{color:var(--cyan);text-shadow:0 0 16px #31f5ff88}.pill{border:1px solid #343858;border-radius:30px;padding:7px 11px;color:var(--muted);font-size:12px}
+.hero{text-align:center;padding:25px 8px 22px}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:4px;font-weight:800}.hero h1{font-size:clamp(42px,12vw,64px);line-height:.95;margin:12px 0 14px;font-weight:1000;letter-spacing:-3px;text-shadow:0 0 28px #8b5cff66}.hero h1 b{color:var(--cyan)}.hero p{color:var(--muted);line-height:1.5;margin:0 auto;max-width:330px;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:12px 0 24px}.stat{background:#111329cc;border:1px solid #282d50;border-radius:15px;padding:13px 8px;text-align:center}.stat strong{display:block;font-size:21px}.stat small{color:var(--muted);font-size:10px;letter-spacing:1px}
+.section-title{font-size:12px;letter-spacing:2px;color:var(--muted);font-weight:800;margin:24px 2px 12px}.modes{display:grid;gap:11px}.mode{display:flex;align-items:center;gap:14px;text-align:left;width:100%;padding:16px;border-radius:17px;background:linear-gradient(110deg,#171a36,#101225);border:1px solid #30365e;color:var(--white);transition:.18s}.mode:active{transform:scale(.98)}.mode:hover{border-color:var(--cyan);box-shadow:0 0 20px #31f5ff20}.mode .emoji{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:#25294b;font-size:24px}.mode strong{display:block;font-size:15px}.mode small{color:var(--muted);font-size:12px}.arrow{margin-left:auto;color:var(--cyan);font-size:22px}
+.primary{width:100%;border:0;border-radius:15px;padding:16px 18px;color:#071018;font-weight:950;letter-spacing:1px;background:linear-gradient(90deg,var(--cyan),#8efaff);box-shadow:0 0 24px #31f5ff44}.secondary{border:1px solid #3b416b;background:#171a34;color:var(--white);border-radius:13px;padding:13px 16px;font-weight:700}
+.footer{text-align:center;color:#626987;font-size:11px;margin-top:28px}
+.screen{display:none}.screen.active{display:block}.game-head{display:flex;justify-content:space-between;align-items:center;margin:12px 0 20px}.back{border:1px solid #343858;background:#151831;color:white;border-radius:12px;padding:9px 13px}.game-title{text-align:center;font-size:12px;letter-spacing:2px;color:var(--cyan);font-weight:900}.timer{text-align:center;font-size:48px;font-weight:1000;margin:8px 0}.score{text-align:center;color:var(--muted);font-size:13px}.arena{height:390px;max-height:55vh;min-height:300px;position:relative;margin:20px 0;background:radial-gradient(circle at center,#171b3c,#0b0d1e 70%);border:1px solid #343a65;border-radius:24px;overflow:hidden;display:grid;place-items:center}
+.target{position:absolute;width:70px;height:70px;border:0;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#31f5ff 30%,#00a8c6 72%);box-shadow:0 0 18px #31f5ff,0 0 45px #31f5ff77;display:none}
+.target.bad{background:radial-gradient(circle at 35% 30%,#fff,#ff3bd4 30%,#b0008b 72%);box-shadow:0 0 18px #ff3bd4,0 0 45px #ff3bd477}
+.instruction{text-align:center;color:var(--muted);font-size:14px;padding:0 12px}.result{text-align:center;padding:38px 12px}.result .big{font-size:58px;font-weight:1000;color:var(--cyan);text-shadow:0 0 22px #31f5ff77}.result h2{margin:5px}.result p{color:var(--muted)}
+.memory-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(290px,85%)}.mem{aspect-ratio:1;border-radius:16px;border:1px solid #40466f;background:#1b2043}.mem.lit{background:var(--cyan);box-shadow:0 0 25px #31f5ff;transform:scale(.96)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#222747;border:1px solid #59618c;padding:11px 16px;border-radius:20px;font-size:13px;display:none;z-index:5}
+.ad-slot{margin:20px 0;padding:12px;text-align:center;border:1px dashed #343858;border-radius:12px;color:#697091;font-size:10px;letter-spacing:1px}
+@media(min-height:800px){.arena{height:430px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top"><div class="brand">TAP <span>MASTER</span></div><div class="pill">ARCADE • 01</div></header>
+<main id="home" class="screen active">
+<section class="hero"><div class="eyebrow">THE WORLD IS YOUR ARENA</div><h1>TAP <b>MASTER</b></h1><p>Teste tes réflexes. Défie tes amis. Entre dans le classement.</p></section>
+<div class="stats"><div class="stat"><strong id="best">0</strong><small>MEILLEUR SCORE</small></div><div class="stat"><strong id="played">0</strong><small>PARTIES</small></div><div class="stat"><strong>10s</strong><small>PAR DÉFI</small></div></div>
+<div class="section-title">CHOISIS TON DÉFI</div>
+<div class="modes">
+<button class="mode" onclick="startGame('reflex')"><span class="emoji">⚡</span><span><strong>REFLEX RUSH</strong><small>Touche les cibles lumineuses en 10 secondes</small></span><span class="arrow">›</span></button>
+<button class="mode" onclick="startGame('precision')"><span class="emoji">🎯</span><span><strong>COLOR STRIKE</strong><small>Touche uniquement les cibles cyan</small></span><span class="arrow">›</span></button>
+<button class="mode" onclick="startGame('memory')"><span class="emoji">🧠</span><span><strong>MEMORY FLASH</strong><small>Reproduis la séquence lumineuse</small></span><span class="arrow">›</span></button>
+</div>
+<div class="ad-slot">ESPACE PUBLICITAIRE — ACTIVATION APRÈS INTÉGRATION ADS</div>
+<button class="secondary" style="width:100%" onclick="shareApp()">↗ Inviter un ami</button>
+<div class="footer">TAP MASTER © 2026 • PLAY. BEAT. REPEAT.</div>
+</main>
+
+<section id="game" class="screen">
+<div class="game-head"><button class="back" onclick="goHome()">← Accueil</button><div id="gameName" class="game-title">REFLEX RUSH</div><div class="pill" id="round">10 SEC</div></div>
+<div class="timer" id="timer">10</div><div class="score">SCORE : <b id="score">0</b></div>
+<div class="arena" id="arena">
+<div id="prompt" class="instruction">Appuie sur DÉMARRER quand tu es prêt.</div>
+<button id="target" class="target" aria-label="Cible"></button>
+<div id="memory" class="memory-grid" style="display:none"></div>
+</div>
+<button id="startBtn" class="primary" onclick="beginRound()">DÉMARRER</button>
+<p class="instruction" id="hint">10 secondes pour faire le meilleur score possible.</p>
+</section>
+
+<section id="result" class="screen">
+<div class="result"><div class="eyebrow">DÉFI TERMINÉ</div><div class="big" id="finalScore">0</div><h2 id="resultTitle">Bien joué !</h2><p id="resultText">Ton score a été enregistré.</p></div>
+<div class="stats"><div class="stat"><strong id="bestResult">0</strong><small>RECORD</small></div><div class="stat"><strong id="playedResult">0</strong><small>PARTIES</small></div><div class="stat"><strong id="rankResult">—</strong><small>STATUT</small></div></div>
+<button class="primary" onclick="shareScore()">↗ PARTAGER MON SCORE</button>
+<button class="secondary" style="width:100%;margin-top:10px" onclick="startGame(currentMode)">REJOUER</button>
+<button class="secondary" style="width:100%;margin-top:10px" onclick="goHome()">RETOUR À L'ACCUEIL</button>
+<div class="ad-slot">EMPLACEMENT PUBLICITAIRE ENTRE LES PARTIES</div>
+</section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+let currentMode='reflex', score=0, timeLeft=10, timerId=null, spawnId=null, playing=false, sequence=[], inputSeq=[], memoryStep=0;
+const $=id=>document.getElementById(id);
+function getStats(){try{return JSON.parse(localStorage.getItem('tapmaster_stats'))||{best:0,played:0}}catch(e){return {best:0,played:0}}}
+function saveStats(s){localStorage.setItem('tapmaster_stats',JSON.stringify(s))}
+function refreshStats(){let s=getStats();$('best').textContent=s.best;$('played').textContent=s.played}
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active')}
+function goHome(){stopTimers();playing=false;show('home');refreshStats()}
+function startGame(mode){stopTimers();currentMode=mode;score=0;timeLeft=10;playing=false;$('score').textContent='0';$('timer').textContent='10';$('target').style.display='none';$('memory').style.display='none';$('prompt').style.display='block';$('startBtn').style.display='block';$('startBtn').textContent='DÉMARRER';$('gameName').textContent=mode==='reflex'?'REFLEX RUSH':mode==='precision'?'COLOR STRIKE':'MEMORY FLASH';$('round').textContent=mode==='memory'?'SÉQUENCE':'10 SEC';$('hint').textContent=mode==='memory'?'Observe la séquence puis reproduis-la.':'10 secondes pour faire le meilleur score possible.';$('prompt').textContent=mode==='memory'?'Mémorise les cases qui vont s’allumer.':'Appuie sur DÉMARRER quand tu es prêt.';show('game')}
+function stopTimers(){clearInterval(timerId);clearInterval(spawnId);timerId=null;spawnId=null}
+function beginRound(){if(playing)return;playing=true;score=0;$('score').textContent='0';$('startBtn').style.display='none';if(currentMode==='memory'){startMemory();return}timeLeft=10;$('timer').textContent=timeLeft;$('prompt').style.display='none';$('target').style.display='block';spawnTarget();spawnId=setInterval(spawnTarget,currentMode==='reflex'?650:780);timerId=setInterval(()=>{timeLeft--;$('timer').textContent=timeLeft;if(timeLeft<=0)finish()},1000)}
+function spawnTarget(){let t=$('target'),a=$('arena');let maxX=a.clientWidth-78,maxY=a.clientHeight-78;t.style.left=(8+Math.random()*Math.max(1,maxX-16))+'px';t.style.top=(8+Math.random()*Math.max(1,maxY-16))+'px';let bad=currentMode==='precision'&&Math.random()<.35;t.classList.toggle('bad',bad);t.dataset.bad=bad?'1':'0';}
+$('target').addEventListener('click',()=>{if(!playing)return;if(currentMode==='precision'&&$('target').dataset.bad==='1'){score=Math.max(0,score-2);toast('Oups ! -2 points')}else{score+=currentMode==='reflex'?1:2} $('score').textContent=score;spawnTarget()});
+function startMemory(){ $('target').style.display='none';$('prompt').style.display='none';$('memory').style.display='grid';$('memory').innerHTML='';for(let i=0;i<9;i++){let b=document.createElement('button');b.className='mem';b.dataset.i=i;b.onclick=()=>memoryTap(i);$('memory').appendChild(b)}sequence=[];inputSeq=[];memoryStep=0;for(let i=0;i<3;i++)sequence.push(Math.floor(Math.random()*9));$('timer').textContent='GO';$('hint').textContent='Regarde bien…';showSequence()}
+function showSequence(){let cells=[...$('memory').children];let i=0;function flash(){if(i>0)cells[sequence[i-1]].classList.remove('lit');if(i>=sequence.length){$('hint').textContent='À toi ! Reproduis la séquence.';return}cells[sequence[i]].classList.add('lit');i++;setTimeout(flash,650)}flash()}
+function memoryTap(i){if(!playing)return;let cells=[...$('memory').children];cells[i].classList.add('lit');setTimeout(()=>cells[i].classList.remove('lit'),180);if(i===sequence[memoryStep]){memoryStep++;score+=5;$('score').textContent=score;if(memoryStep===sequence.length){finish()}}else{score=0;$('score').textContent=score;toast('Séquence incorrecte !');finish()}}
+function finish(){if(!playing)return;playing=false;stopTimers();$('target').style.display='none';$('memory').style.display='none';let s=getStats();s.played++;let isBest=score>s.best;if(isBest)s.best=score;saveStats(s);$('finalScore').textContent=score;$('bestResult').textContent=s.best;$('playedResult').textContent=s.played;$('rankResult').textContent=isBest?'NOUVEAU !':'VALIDÉ';$('resultTitle').textContent=isBest?'NOUVEAU RECORD !':'Bien joué !';$('resultText').textContent='Tu as marqué '+score+' points. Défie un ami pour battre ton score.';show('result');refreshStats()}
+function toast(msg){$('toast').textContent=msg;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',1500)}
+function shareScore(){let msg='Je viens de marquer '+score+' points sur TAP MASTER ! 🔥 Peux-tu battre mon score ?';if(navigator.share)navigator.share({title:'TAP MASTER',text:msg,url:location.href}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(msg+' '+location.href).then(()=>toast('Résultat copié !'));else toast(msg)}
+function shareApp(){let msg='Viens tester TAP MASTER avec moi ! ⚡';if(navigator.share)navigator.share({title:'TAP MASTER',text:msg,url:location.href}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(msg+' '+location.href).then(()=>toast('Lien copié !'))}
+refreshStats();
+if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+</script>
+</body></html>
