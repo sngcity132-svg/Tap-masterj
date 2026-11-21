@@ -41,6 +41,15 @@ button{font:inherit;cursor:pointer} .wrap{max-width:520px;margin:auto;padding:20
 <button class="mode" onclick="startGame('memory')"><span class="emoji">🧠</span><span><strong>MEMORY FLASH</strong><small>Reproduis la séquence lumineuse</small></span><span class="arrow">›</span></button>
 </div>
 <div class="ad-slot">ESPACE PUBLICITAIRE — ACTIVATION APRÈS INTÉGRATION ADS</div>
+<div class="section-title">ESPACE JOUEUR</div>
+<div id="accountPanel" class="mode" style="display:block">
+  <div id="accountStatus" style="font-size:13px;color:var(--muted);margin-bottom:10px">Connecte-toi pour sauvegarder tes scores en ligne.</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="secondary" onclick="openAuth()">Connexion / Inscription</button>
+    <button class="secondary" onclick="openLeaderboard()">🏆 Classement mondial</button>
+    <button class="secondary" id="logoutBtn" style="display:none" onclick="window.TMAuth?.signOut()">Déconnexion</button>
+  </div>
+</div>
 <button class="secondary" style="width:100%" onclick="shareApp()">↗ Inviter un ami</button>
 <div class="footer">TAP MASTER © 2026 • PLAY. BEAT. REPEAT.</div>
 </main>
@@ -66,6 +75,25 @@ button{font:inherit;cursor:pointer} .wrap{max-width:520px;margin:auto;padding:20
 <div class="ad-slot">EMPLACEMENT PUBLICITAIRE ENTRE LES PARTIES</div>
 </section>
 </div>
+<div id="authModal" style="display:none;position:fixed;inset:0;background:#050611ee;z-index:20;overflow:auto;padding:24px 16px">
+ <div style="max-width:440px;margin:8vh auto;background:#151831;border:1px solid #343a65;border-radius:22px;padding:22px">
+  <div style="display:flex;justify-content:space-between;align-items:center"><strong>ESPACE JOUEUR</strong><button class="back" onclick="closeAuth()">✕</button></div>
+  <p class="instruction">Connecte-toi ou crée ton compte pour enregistrer tes records.</p>
+  <label style="display:block;margin:14px 0 6px;color:var(--muted);font-size:12px">EMAIL</label><input id="authEmail" type="email" autocomplete="email" placeholder="ton@email.com" style="width:100%;padding:14px;border-radius:12px;border:1px solid #414873;background:#090d20;color:white">
+  <label style="display:block;margin:14px 0 6px;color:var(--muted);font-size:12px">MOT DE PASSE (6 caractères minimum)</label><input id="authPassword" type="password" autocomplete="current-password" placeholder="Mot de passe" style="width:100%;padding:14px;border-radius:12px;border:1px solid #414873;background:#090d20;color:white">
+  <button class="primary" style="margin-top:16px" onclick="window.TMAuth?.signIn()">SE CONNECTER</button>
+  <button class="secondary" style="width:100%;margin-top:9px" onclick="window.TMAuth?.signUp()">CRÉER UN COMPTE</button>
+  <p id="authMessage" class="instruction" aria-live="polite"></p>
+ </div>
+</div>
+<div id="leaderModal" style="display:none;position:fixed;inset:0;background:#050611ee;z-index:20;overflow:auto;padding:24px 16px">
+ <div style="max-width:480px;margin:5vh auto;background:#151831;border:1px solid #343a65;border-radius:22px;padding:22px">
+  <div style="display:flex;justify-content:space-between;align-items:center"><strong>🏆 CLASSEMENT MONDIAL</strong><button class="back" onclick="closeLeaderboard()">✕</button></div>
+  <select id="leaderMode" onchange="window.TMAuth?.loadLeaderboard()" style="width:100%;margin:16px 0;padding:12px;border-radius:12px;background:#090d20;color:white;border:1px solid #414873"><option value="reflex">Reflex Rush</option><option value="precision">Color Strike</option><option value="memory">Memory Flash</option></select>
+  <div id="leaderRows" class="instruction">Chargement du classement…</div>
+  <p class="instruction">Classement basé sur les meilleurs scores enregistrés. Les scores ne sont pas encore vérifiés contre la triche.</p>
+ </div>
+</div>
 <div class="toast" id="toast"></div>
 <script>
 let currentMode='reflex', score=0, timeLeft=10, timerId=null, spawnId=null, playing=false, sequence=[], inputSeq=[], memoryStep=0;
@@ -83,11 +111,35 @@ $('target').addEventListener('click',()=>{if(!playing)return;if(currentMode==='p
 function startMemory(){ $('target').style.display='none';$('prompt').style.display='none';$('memory').style.display='grid';$('memory').innerHTML='';for(let i=0;i<9;i++){let b=document.createElement('button');b.className='mem';b.dataset.i=i;b.onclick=()=>memoryTap(i);$('memory').appendChild(b)}sequence=[];inputSeq=[];memoryStep=0;for(let i=0;i<3;i++)sequence.push(Math.floor(Math.random()*9));$('timer').textContent='GO';$('hint').textContent='Regarde bien…';showSequence()}
 function showSequence(){let cells=[...$('memory').children];let i=0;function flash(){if(i>0)cells[sequence[i-1]].classList.remove('lit');if(i>=sequence.length){$('hint').textContent='À toi ! Reproduis la séquence.';return}cells[sequence[i]].classList.add('lit');i++;setTimeout(flash,650)}flash()}
 function memoryTap(i){if(!playing)return;let cells=[...$('memory').children];cells[i].classList.add('lit');setTimeout(()=>cells[i].classList.remove('lit'),180);if(i===sequence[memoryStep]){memoryStep++;score+=5;$('score').textContent=score;if(memoryStep===sequence.length){finish()}}else{score=0;$('score').textContent=score;toast('Séquence incorrecte !');finish()}}
-function finish(){if(!playing)return;playing=false;stopTimers();$('target').style.display='none';$('memory').style.display='none';let s=getStats();s.played++;let isBest=score>s.best;if(isBest)s.best=score;saveStats(s);$('finalScore').textContent=score;$('bestResult').textContent=s.best;$('playedResult').textContent=s.played;$('rankResult').textContent=isBest?'NOUVEAU !':'VALIDÉ';$('resultTitle').textContent=isBest?'NOUVEAU RECORD !':'Bien joué !';$('resultText').textContent='Tu as marqué '+score+' points. Défie un ami pour battre ton score.';show('result');refreshStats()}
+function finish(){if(!playing)return;playing=false;stopTimers();$('target').style.display='none';$('memory').style.display='none';let s=getStats();s.played++;let isBest=score>s.best;if(isBest)s.best=score;saveStats(s);window.dispatchEvent(new CustomEvent('tapmaster:score',{detail:{mode:currentMode,score:score}}));$('finalScore').textContent=score;$('bestResult').textContent=s.best;$('playedResult').textContent=s.played;$('rankResult').textContent=isBest?'NOUVEAU !':'VALIDÉ';$('resultTitle').textContent=isBest?'NOUVEAU RECORD !':'Bien joué !';$('resultText').textContent='Tu as marqué '+score+' points. Défie un ami pour battre ton score.';show('result');refreshStats()}
 function toast(msg){$('toast').textContent=msg;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',1500)}
 function shareScore(){let msg='Je viens de marquer '+score+' points sur TAP MASTER ! 🔥 Peux-tu battre mon score ?';if(navigator.share)navigator.share({title:'TAP MASTER',text:msg,url:location.href}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(msg+' '+location.href).then(()=>toast('Résultat copié !'));else toast(msg)}
 function shareApp(){let msg='Viens tester TAP MASTER avec moi ! ⚡';if(navigator.share)navigator.share({title:'TAP MASTER',text:msg,url:location.href}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(msg+' '+location.href).then(()=>toast('Lien copié !'))}
+function openAuth(){$('authModal').style.display='block'}function closeAuth(){$('authModal').style.display='none'}
+function openLeaderboard(){$('leaderModal').style.display='block';window.TMAuth?.loadLeaderboard()}
+function closeLeaderboard(){$('leaderModal').style.display='none'}
 refreshStats();
 if('serviceWorker' in navigator && location.protocol!=='file:'){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
 </script>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+const SUPABASE_URL='https://xkapkpzlyisyoeysggif.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_e_EhGjk5R6XXYBJ3_TWMkA_YoeXVImP';
+const supabase=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let currentUser=null;
+const byId=id=>document.getElementById(id);
+function authMessage(msg){const el=byId('authMessage');if(el)el.textContent=msg;}
+function updateAccount(user){currentUser=user;const status=byId('accountStatus'),logout=byId('logoutBtn');if(user){status.textContent='Connecté : '+user.email+' — tes scores pourront être sauvegardés en ligne.';logout.style.display='inline-block';}else{status.textContent='Connecte-toi pour sauvegarder tes scores en ligne.';logout.style.display='none';}}
+async function signUp(){const email=byId('authEmail').value.trim(),password=byId('authPassword').value;if(!email||password.length<6){authMessage('Entre un email valide et un mot de passe de 6 caractères minimum.');return;}authMessage('Création du compte…');const {data,error}=await supabase.auth.signUp({email,password});if(error){authMessage(error.message);return;}if(data.session){updateAccount(data.user);authMessage('Compte créé et connecté !');}else{authMessage('Compte créé. Vérifie ta boîte email pour confirmer ton inscription, puis connecte-toi.');}}
+async function signIn(){const email=byId('authEmail').value.trim(),password=byId('authPassword').value;if(!email||!password){authMessage('Renseigne ton email et ton mot de passe.');return;}authMessage('Connexion…');const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error){authMessage(error.message);return;}updateAccount(data.user);authMessage('Connexion réussie !');setTimeout(()=>{byId('authModal').style.display='none';},700);}
+async function signOut(){const {error}=await supabase.auth.signOut();if(error){alert(error.message);return;}updateAccount(null);}
+async function saveScore({mode,score}){if(!currentUser){return;}const {error}=await supabase.from('scores').insert({user_id:currentUser.id,mode,score});if(error){console.error('TAP MASTER score error:',error.message);if(window.toast)window.toast('Score non synchronisé : '+error.message);}}
+async function loadLeaderboard(){const mode=byId('leaderMode').value,box=byId('leaderRows');box.textContent='Chargement…';const {data:scores,error}=await supabase.from('scores').select('user_id,mode,score,created_at').eq('mode',mode).order('score',{ascending:false}).limit(20);if(error){box.textContent='Erreur de chargement : '+error.message;return;}if(!scores?.length){box.textContent='Aucun score enregistré pour ce mode. Sois le premier !';return;}const ids=[...new Set(scores.map(s=>s.user_id))];const {data:profiles}=await supabase.from('profiles').select('id,username,avatar').in('id',ids);const map=new Map((profiles||[]).map(p=>[p.id,p]));box.innerHTML='';scores.forEach((s,i)=>{const p=map.get(s.user_id)||{username:'Joueur',avatar:'⚡'};const row=document.createElement('div');row.style.cssText='display:flex;justify-content:space-between;gap:10px;padding:12px 8px;border-bottom:1px solid #30365e;text-align:left';const left=document.createElement('span');left.textContent=(i+1)+'. '+(p.avatar||'⚡')+' '+p.username;const right=document.createElement('strong');right.textContent=s.score+' pts';right.style.color='#31f5ff';row.append(left,right);box.append(row);});}
+window.TMAuth={signUp,signIn,signOut,loadLeaderboard};
+const {data:{session}}=await supabase.auth.getSession();updateAccount(session?.user||null);
+supabase.auth.onAuthStateChange((_event,session)=>updateAccount(session?.user||null));
+window.addEventListener('tapmaster:score',e=>{saveScore(e.detail)});
+</script>
+
 </body></html>
